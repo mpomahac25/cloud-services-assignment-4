@@ -1,48 +1,581 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Cloud Services Assignment 4</title>
 
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <main class="container">
-        <h1>Cloud Services Assignment 4</h1>
-        <h2>Version: 1.0.1</h2>
 
-        <section class="card">
-            <h2>Application Status</h2>
+    <header>
+        <h1>Cloud Services - Assignment 4</h1>
+        <p>By: Marko Pomahac</p>
+    </header>
 
-            <p>
-                Backend:
-                <span id="backend-status">Loading...</span>
-            </p>
+    <main>
 
-            <p>
-                Database:
-                <span id="database-status">Loading...</span>
-            </p>
+        <div class="tab-navbar">
 
-            <p>
-                Database server time:
-                <span id="server-time">Loading...</span>
-            </p>
-        </section>
-
-        <section class="card">
-            <h2>Persistent Counter</h2>
-
-            <p class="counter" id="counter">-</p>
-
-            <button id="increment-button">
-                Increase counter
+            <button class="main-tab active"
+                    type="button"
+                    data-tab="app"
+                    aria-selected="true">
+                App
             </button>
-        </section>
+
+            <button class="main-tab"
+                    type="button"
+                    data-tab="implementation"
+                    aria-selected="false">
+                Implementation
+            </button>
+
+            <button class="main-tab"
+                    type="button"
+                    data-tab="db-persistence"
+                    aria-selected="false">
+                DB Persistence
+            </button>
+
+            <button class="main-tab"
+                    type="button"
+                    data-tab="pod-recovery"
+                    aria-selected="false">
+                Pod recovery
+            </button>
+
+            <button class="main-tab"
+                    type="button"
+                    data-tab="backend-scaling"
+                    aria-selected="false">
+                Backend scaling
+            </button>
+
+            <button class="main-tab"
+                    type="button"
+                    data-tab="app-update"
+                    aria-selected="false">
+                App update
+            </button>
+
+        </div>
+
+
+        <div class="tab-content">
+
+            <div id="tab-app" class="tab-panel">
+
+                <section>
+                    <h2>Application</h2>
+
+                    <p>
+                        This application consists of three separate containers: a frontend,
+                        a backend REST API, and a MySQL database. The frontend communicates
+                        with the backend, which then reads and writes data in the database.
+                    </p>
+
+                    <p>
+                        The currently deployed application version is <strong>1.0.2</strong>.
+                    </p>
+                </section>
+
+
+                <section>
+                    <h2>Application Status</h2>
+
+                    <div class="status-row">
+                        <span class="status-label">Backend:</span>
+                        <span id="backend-status">Loading...</span>
+                    </div>
+
+                    <div class="status-row">
+                        <span class="status-label">Database:</span>
+                        <span id="database-status">Loading...</span>
+                    </div>
+
+                    <div class="status-row">
+                        <span class="status-label">Database server time:</span>
+                        <span id="server-time">Loading...</span>
+                    </div>
+                </section>
+
+
+                <section>
+                    <h2>Persistent Counter</h2>
+
+                    <p>
+                        The value below is stored in the MySQL database. Pressing the button
+                        sends a request through the frontend to the backend REST API, which
+                        updates the value in the database.
+                    </p>
+
+                    <p class="counter" id="counter">-</p>
+
+                    <button id="increment-button" class="action-button">
+                        Increase counter
+                    </button>
+                </section>
+
+            </div>
+
+
+            <div id="tab-implementation" class="tab-panel hidden">
+
+                <section>
+                    <h2>Implementation</h2>
+
+                    <p>
+                        The application was first created and tested locally using Docker Compose.
+                        It consists of three containers: a frontend Node.js application, a backend
+                        Node.js/Express REST API, and a MySQL database.
+                    </p>
+
+                    <p>
+                        After local testing, the frontend and backend images were built and pushed
+                        to Docker Hub. The application was then deployed to CSC Rahti using
+                        Kubernetes/OpenShift resources.
+                    </p>
+                </section>
+
+
+                <section>
+                    <h2>1. Application Architecture</h2>
+
+                    <p>
+                        Only the frontend is publicly accessible. The backend and database are
+                        available only through internal Kubernetes Services. This can be seen
+                        by looking at <strong>Networking -> Services</strong> on the CSC Rahti console
+                        and seeing 3 services there (figure 1), then looking at
+                        <strong>Networking -> Routes</strong> and seeing that there is only one
+                        route which is pointing to the frontend service (figure 2).
+                    </p>
+
+                    <figure>
+                        <img src="https://a3s.fi/swift/v1/assignment-4-media/rahti_services.png"
+                             alt="Rahti services">
+
+                        <figcaption>
+                            Figure 1: List of Rahti services
+                        </figcaption>
+                    </figure>
+
+                    <figure>
+                        <img src="https://a3s.fi/swift/v1/assignment-4-media/rahti_routes.png"
+                             alt="Rahti routes">
+
+                        <figcaption>
+                            Figure 2: List of Rahti routes
+                        </figcaption>
+                    </figure>
+                </section>
+
+
+                <section>
+                    <h2>2. Docker Images</h2>
+
+                    <p>
+                        Separate Docker images were created for the frontend and backend (figure 3 and 5).
+                        Version 1.0.0 of both images was initially pushed to Docker Hub (figure 4 and 6).
+                        The official MySQL 8.4 image was used for the database.
+                    </p>
+
+                    <p>
+                        The frontend image:
+                        <code>mpomahac25/cloud-assignment-w4-frontend:1.0.0</code>
+                    </p>
+
+                    <figure>
+                        <img src="https://a3s.fi/swift/v1/assignment-4-media/container_1.0.0_build_frontend.png"
+                             alt="Frontend container build">
+
+                        <figcaption>
+                            Figure 3: Building the frontend container v1.0.0
+                        </figcaption>
+                    </figure>
+
+                    <figure>
+                        <img src="https://a3s.fi/swift/v1/assignment-4-media/container_1.0.0_push_frontend.png"
+                             alt="Frontend container push">
+
+                        <figcaption>
+                            Figure 4: Pushing the frontend container v1.0.0 to Docker Hub
+                        </figcaption>
+                    </figure>
+
+                    <p>
+                        The backend image:
+                        <code>mpomahac25/cloud-assignment-w4-backend:1.0.0</code>
+                    </p>
+
+                    <figure>
+                        <img src="https://a3s.fi/swift/v1/assignment-4-media/container_1.0.0_build_backend.png"
+                             alt="Backend container build">
+
+                        <figcaption>
+                            Figure 5: Building the backend container v1.0.0
+                        </figcaption>
+                    </figure>
+
+                    <figure>
+                        <img src="https://a3s.fi/swift/v1/assignment-4-media/container_1.0.0_push_backend.png"
+                             alt="Backend container push">
+
+                        <figcaption>
+                            Figure 6: Pushing the backend container v1.0.0 to Docker Hub
+                        </figcaption>
+                    </figure>
+                </section>
+
+
+                <section>
+                    <h2>3. Configuration and Secrets</h2>
+
+                    <p>
+                        A Kubernetes ConfigMap is used for non-sensitive configuration such as
+                        database hostname, database port, database name, backend port and the
+                        internal backend URL. Below is a screenshot from Rahti showing the
+                        ConfigMap (figure 7) and some of the non-sensitive data.
+                    </p>
+
+                    <figure>
+                        <img src="https://a3s.fi/swift/v1/assignment-4-media/rahti_config_map.png"
+                             alt="ConfigMap for configuration env vars">
+
+                        <figcaption>
+                            Figure 7: ConfigMap on Rahti with a few env vars visible
+                        </figcaption>
+                    </figure>
+
+                    <p>
+                        Database credentials are stored separately in a Kubernetes Secret.
+                        This prevents passwords from being stored directly inside the container
+                        images or normal configuration files. Below is a screenshot from Rahti
+                        showing the Secret used for this assignment (figure 8) and the protected variables.
+                    </p>
+
+                    <figure>
+                        <img src="https://a3s.fi/swift/v1/assignment-4-media/rahti_secrets.png"
+                             alt="Secret information stored in Rahti">
+
+                        <figcaption>
+                            Figure 8: Secrets used for this assignnment
+                        </figcaption>
+                    </figure>
+
+                </section>
+
+
+                <section>
+                    <h2>4. Networking</h2>
+
+                    <p>
+                        Kubernetes Services are used for communication between the containers.
+                        The frontend accesses the backend using the internal address
+                        <code>backend-service:3000</code>, while the backend accesses MySQL
+                        using <code>mysql-service:3306</code>.
+                    </p>
+
+                    <p>
+                        A public Rahti Route was created only for the frontend, as seen in figure 1. TLS edge
+                        termination was enabled on the Route (figure 9), and HTTP requests are redirected
+                        to HTTPS.
+                    </p>
+
+                    <figure>
+                        <img src="https://a3s.fi/swift/v1/assignment-4-media/rahti_route_tls.png"
+                             alt="Route TLS config">
+
+                        <figcaption>
+                            Figure 9: Pushing the backend container v1.0.0 to Docker Hub
+                        </figcaption>
+                    </figure>
+                </section>
+
+
+                <section>
+                    <h2>GitHub Repository</h2>
+
+                    <p>
+                        The source code for this assignment can be found here:
+                        <a href="https://github.com/mpomahac25/cloud-services-assignment-4">
+                            GitHub repository
+                        </a>
+                    </p>
+                </section>
+
+            </div>
+
+            <div id="tab-db-persistence" class="tab-panel hidden">
+
+                <section>
+                    <h2>Database Persistence</h2>
+
+                    <p>
+                        The MySQL database uses a Kubernetes PersistentVolumeClaim so that the
+                        database files are stored separately from the MySQL pod itself.
+                    </p>
+
+                    <p>
+                        To test the persistence, I first increased the database-backed counter
+                        to a known value (figure 1).
+                    </p>
+
+                    <figure>
+                        <img src="https://a3s.fi/swift/v1/assignment-4-media/db_persist_init.png"
+                             alt="Initial counter value">
+
+                        <figcaption>
+                            Figure 1: Counter set to 6 at start of experiment
+                        </figcaption>
+                    </figure>
+
+                    <p>
+                        Next, I took a screenshot of the currently running pods for reference (figure 2).
+                    </p>
+
+                    <figure>
+                        <img src="https://a3s.fi/swift/v1/assignment-4-media/db_persist_init_pods.png"
+                             alt="Initial pods list">
+
+                        <figcaption>
+                            Figure 2: List of running pods at the start of experiment
+                        </figcaption>
+                    </figure>
+
+                    <p>
+                        I then manually deleted the MySQL pod and immediately saw the old pod terminating
+                        and a new one being created (figure 3).
+                    </p>
+
+                    <figure>
+                        <img src="https://a3s.fi/swift/v1/assignment-4-media/db_persist_del_pod.png"
+                             alt="Pod deletion">
+
+                        <figcaption>
+                            Figure 3: Old MySQL pod being terminated and new one spinning up at the same time
+                        </figcaption>
+                    </figure>
+
+                    <p>
+                        The new MySQL pod was created using the same persistent volume as the old one.
+                        Because of this, once the pod was running, the app still displayed the same counter
+                        value of 6, which confirmed that the data was truly being stored inside the persistent
+                        volume and not inside the pod itself.
+                    </p>
+                </section>
+
+
+                <section>
+                    <h2>Result</h2>
+
+                    <p>
+                        The database data remained available after replacing the MySQL pod.
+                        This shows that the PersistentVolumeClaim successfully separates the
+                        lifetime of the database data from the lifetime of individual pods.
+                    </p>
+
+                </section>
+
+            </div>
+
+
+            <div id="tab-pod-recovery" class="tab-panel hidden">
+
+                <section>
+                    <h2>Pod Recovery</h2>
+
+                    <p>
+                        The backend Deployment was configured to run one replica. To test
+                        Kubernetes recovery, I manually deleted the running backend pod.
+                        Similar to the database persistence experiment, as soon as I deleted
+                        the original backend pod a new one started spinning up (figure 1).
+                    </p>
+
+                    <figure>
+                        <img src="https://a3s.fi/swift/v1/assignment-4-media/backend_persist_del_pod.png"
+                             alt="Backend pod deletion">
+
+                        <figcaption>
+                            Figure 1: Old pod being terminated while and new one spinning up
+                        </figcaption>
+                    </figure>
+
+                    <p>
+                        The application continued functioning normally after the replacement pod had started.
+                    </p>
+                </section>
+
+
+                <section>
+                    <h2>What Recreated the pod?</h2>
+
+                    <p>
+                        The backend is managed by a Kubernetes Deployment. The Deployment manages
+                        a ReplicaSet (figure 2), which is responsible for maintaining the requested number
+                        of pod replicas.
+                    </p>
+
+                    <figure>
+                        <img src="https://a3s.fi/swift/v1/assignment-4-media/backend_replicaset.png"
+                             alt="Backend ReplicaSet">
+
+                        <figcaption>
+                            Figure 2: Screenshot of the ReplicaSet being owned by the backend deployment
+                        </figcaption>
+                    </figure>
+
+                    <p>
+                        When the backend pod was deleted, the ReplicaSet detected that the
+                        desired replica count of one was no longer satisfied and created a new
+                        pod automatically.
+                    </p>
+
+                </section>
+
+            </div>
+
+
+            <div id="tab-backend-scaling" class="tab-panel hidden">
+
+                <section>
+                    <h2>Backend Scaling</h2>
+
+                    <p>
+                        The backend Deployment was initially configured with one replica (figure 1).
+                        To test Kubernetes scaling, the replica count was increased from one
+                        to three (figure 2).
+                    </p>
+
+                    <figure>
+                        <img src="https://a3s.fi/swift/v1/assignment-4-media/backend_scale_init_val.png"
+                             alt="Initial number of replicas for backend">
+
+                        <figcaption>
+                            Figure 1: Backend deployment YAML showing 1 targetted replica initially
+                        </figcaption>
+                    </figure>
+
+                    <figure>
+                        <img src="https://a3s.fi/swift/v1/assignment-4-media/backend_scale_changed_val.png"
+                             alt="Increased number of replicas for backend">
+
+                        <figcaption>
+                            Figure 2: Backend deployment replicas changed to 3
+                        </figcaption>
+                    </figure>
+
+                    <p>
+                        Kubernetes created two additional backend pods so that three replicas
+                        were running at the same time (figure 3).
+                    </p>
+
+                    <figure>
+                        <img src="https://a3s.fi/swift/v1/assignment-4-media/backend_scale_3_pods_running.png"
+                             alt="3 backend pods running">
+
+                        <figcaption>
+                            Figure 3: Pods view shows 3 backend pods running after change
+                        </figcaption>
+                    </figure>
+
+                </section>
+
+
+                <section>
+                    <h2>Service Communication</h2>
+
+                    <p>
+                        The frontend did not need to know the address of any individual backend
+                        pod. It continued sending requests to
+                        <code>backend-service:3000</code>.
+                    </p>
+
+                    <p>
+                        The backend Service selects pods using their labels and routes requests
+                        to the available backend replicas. After the scaling test, the backend
+                        was returned to one replica.
+                    </p>
+
+                </section>
+
+            </div>
+
+
+            <div id="tab-app-update" class="tab-panel hidden">
+
+                <section>
+                    <h2>Application Update</h2>
+
+                    <p>
+                        The initial frontend deployment used image version
+                        <code>1.0.0</code>. A visible version number was then added to the page,
+                        and a new frontend Docker image was built and pushed as version
+                        <code>1.0.1</code> (figure 1).
+                    </p>
+
+                    <figure>
+                        <img src="https://a3s.fi/swift/v1/assignment-4-media/app_rollout_v1.0.1_frontent.png"
+                             alt="Updated frontend">
+
+                        <figcaption>
+                            Figure 1: Updated frontend container shows updated index.html
+                        </figcaption>
+                    </figure>
+
+                    <p>
+                        The frontend Deployment was updated to use the new image version.
+                        Kubernetes then performed a rolling update.
+                    </p>
+                </section>
+
+
+                <section>
+                    <h2>Rolling Update</h2>
+
+                    <p>
+                        During the update, Kubernetes created a new frontend pod using image
+                        version 1.0.1 while the previous pod was still available. Once the new
+                        pod was ready, the old pod was terminated.
+                    </p>
+
+                    <p>
+                        The application remained available during the deployment, and after the
+                        rollout the webpage displayed version 1.0.1. The below screenshot (figure 2)
+                        shows the newly created frontend pod, as seen by its Created timestamp.
+                    </p>
+
+                    <figure>
+                        <img src="https://a3s.fi/swift/v1/assignment-4-media/app_rollout_v1.0.1_new_pod.png"
+                             alt="New frontend pod">
+
+                        <figcaption>
+                            Figure 2: New frontend pod created
+                        </figcaption>
+                    </figure>
+
+                    <p>
+                        At the time of you reding this, the frontend will be running on the v1.0.2 frontend deployment.
+                    </p>
+
+                </section>
+
+            </div>
+
+        </div>
+
     </main>
 
+
+    <footer>
+        <p>Thank you for reading :)</p>
+    </footer>
+
     <script src="index.js"></script>
+
 </body>
 </html>

@@ -54,3 +54,26 @@ async function incrementCounter() {
 incrementButton.addEventListener("click", incrementCounter);
 
 loadStatus();
+
+const tabs = document.querySelectorAll(".main-tab");
+const tabPanels = document.querySelectorAll(".tab-panel");
+
+tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+        const selectedTab = tab.dataset.tab;
+
+        tabs.forEach(currentTab => {
+            const isActive = currentTab === tab;
+
+            currentTab.classList.toggle("active", isActive);
+            currentTab.setAttribute("aria-selected", isActive);
+        });
+
+        tabPanels.forEach(panel => {
+            panel.classList.toggle(
+                "hidden",
+                panel.id !== `tab-${selectedTab}`
+            );
+        });
+    });
+});

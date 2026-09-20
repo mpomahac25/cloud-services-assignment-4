@@ -1,38 +1,183 @@
 body {
     font-family: Arial, sans-serif;
-    background: #f5f5f5;
     margin: 0;
-    padding: 40px 20px;
+    background-color: #f4f4f4;
+    color: #222;
 }
 
-.container {
-    max-width: 700px;
-    margin: 0 auto;
+header {
+    background-color: #1f2937;
+    color: white;
+    padding: 2rem;
+    text-align: center;
 }
 
-h1 {
-    margin-bottom: 30px;
-}
-
-.card {
-    background: white;
-    padding: 25px;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-    .card h2 {
-        margin-top: 0;
+    header h1 {
+        margin: 0 0 0.5rem;
     }
 
-.counter {
-    font-size: 40px;
+    header p {
+        margin: 0;
+    }
+
+main {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+section {
+    background-color: white;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 8px;
+}
+
+h2 {
+    margin-top: 0;
+}
+
+p {
+    line-height: 1.5;
+}
+
+a {
+    color: #2563eb;
+}
+
+code {
+    background-color: #f0f0f0;
+    padding: 0.15rem 0.35rem;
+    border-radius: 4px;
+}
+
+footer {
+    text-align: center;
+    padding: 1.5rem;
+    color: #666;
+}
+
+
+.tab-navbar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0;
+    overflow-x: auto;
+}
+
+.main-tab {
+    border: none;
+    border-radius: 8px 8px 0 0;
+    padding: 0.8rem 1.2rem;
+    background-color: #d1d5db;
+    color: #222;
+    font-size: 1rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+    .main-tab:hover {
+        background-color: #c1c5ca;
+    }
+
+    .main-tab.active {
+        background-color: #1f2937;
+        color: white;
+    }
+
+.tab-content {
+    margin-top: 0;
+}
+
+.hidden {
+    display: none;
+}
+
+
+
+.status-row {
+    margin: 0.75rem 0;
+}
+
+.status-label {
+    display: inline-block;
+    min-width: 170px;
     font-weight: bold;
 }
 
-button {
-    padding: 10px 18px;
-    font-size: 16px;
+.counter {
+    font-size: 3rem;
+    font-weight: bold;
+    margin: 1rem 0;
+}
+
+.action-button {
+    border: none;
+    border-radius: 6px;
+    padding: 0.75rem 1.25rem;
+    background-color: #1f2937;
+    color: white;
+    font-size: 1rem;
     cursor: pointer;
+}
+
+    .action-button:hover {
+        background-color: #374151;
+    }
+
+    .action-button:disabled {
+        opacity: 0.6;
+        cursor: default;
+    }
+
+
+.architecture {
+    overflow-x: auto;
+    background-color: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 1rem;
+    line-height: 1.4;
+}
+
+
+
+figure {
+    margin: 1rem 0 0;
+}
+
+    figure img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        margin-bottom: 0.75rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+figcaption {
+    color: #555;
+    line-height: 1.5;
+}
+
+
+
+@media (max-width: 700px) {
+    header {
+        padding: 1.5rem 1rem;
+    }
+
+    main {
+        margin-top: 1rem;
+    }
+
+    .main-tab {
+        padding: 0.7rem 1rem;
+    }
+
+    .status-label {
+        display: block;
+        min-width: 0;
+        margin-bottom: 0.2rem;
+    }
 }
