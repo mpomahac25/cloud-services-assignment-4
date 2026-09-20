@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Services Assignment 4</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <main class="container">
+        <h1>Cloud Services Assignment</h1>
+
+        <section class="card">
+            <h2>Application Status</h2>
+
+            <p>
+                Backend:
+                <span id="backend-status">Loading...</span>
+            </p>
+
+            <p>
+                Database:
+                <span id="database-status">Loading...</span>
+            </p>
+
+            <p>
+                Database server time:
+                <span id="server-time">Loading...</span>
+            </p>
+        </section>
+
+        <section class="card">
+            <h2>Persistent Counter</h2>
+
+            <p class="counter" id="counter">-</p>
+
+            <button id="increment-button">
+                Increase counter
+            </button>
+        </section>
+    </main>
+
+    <script src="index.js"></script>
+</body>
+</html>
