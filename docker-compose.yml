@@ -15,6 +15,14 @@ services:
     ports:
       - "3306:3306"
 
+  currency-service:
+    build:
+      context: ./currency-service
+
+    environment:
+      PORT: 3001
+      FRANKFURTER_API_URL: https://api.frankfurter.dev
+
   backend:
     build:
       context: ./backend
@@ -28,8 +36,11 @@ services:
       DB_USER: appuser
       DB_PASSWORD: apppassword
 
+      CURRENCY_SERVICE_URL: http://currency-service:3001
+
     depends_on:
       - mysql
+      - currency-service
 
   frontend:
     build:

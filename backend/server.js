@@ -8,6 +8,9 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
+// Frankfurter currency conversion API for week 5
+const CURRENCY_SERVICE_URL = process.env.CURRENCY_SERVICE_URL || "http://localhost:3001";
+
 const pool = mysql.createPool({
     host: process.env.DB_HOST || "localhost",
     port: Number(process.env.DB_PORT || 3306),
@@ -41,6 +44,7 @@ app.get("/api/status", async (req, res) => {
             backend: "connected",
             database: "connected",
             serverTime: timeRows[0].serverTime,
+            currency: "connected",
             counter: counterRows[0].value
         });
     } catch (error) {
@@ -73,6 +77,56 @@ app.post("/api/counter/increment", async (req, res) => {
 
         res.status(500).json({
             error: "Could not update counter"
+        });
+    }
+});
+
+// Get list of currencies, used for populating dropdowns
+app.get("/api/currency/currencies", async (req, res) => {
+    try {
+        const response = await fetch(
+            `${CURRENCY_SERVICE_URL}/currencies`,
+            {
+                signal: AbortSignal.timeout(5000)
+            }
+        );
+
+        const data = await response.json();
+
+        res.status(response.status).json(data);
+    } catch (error) {
+        console.error("Currency service error:", error);
+
+        res.status(502).json({
+            error: "Currency service is unavailable"
+        });
+    }
+});
+
+// Perform conversion
+app.get("/api/currency/convert", async (req, res) => {
+    try {
+        const params = new URLSearchParams({
+            amount: req.query.amount || "",
+            from: req.query.from || "",
+            to: req.query.to || ""
+        });
+
+        const response = await fetch(
+            `${CURRENCY_SERVICE_URL}/convert?${params}`,
+            {
+                signal: AbortSignal.timeout(5000)
+            }
+        );
+
+        const data = await response.json();
+
+        res.status(response.status).json(data);
+    } catch (error) {
+        console.error("Currency service error:", error);
+
+        res.status(502).json({
+            error: "Currency service is unavailable"
         });
     }
 });

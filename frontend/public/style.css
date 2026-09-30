@@ -65,26 +65,6 @@ footer {
     overflow-x: auto;
 }
 
-.main-tab {
-    border: none;
-    border-radius: 8px 8px 0 0;
-    padding: 0.8rem 1.2rem;
-    background-color: #d1d5db;
-    color: #222;
-    font-size: 1rem;
-    cursor: pointer;
-    white-space: nowrap;
-}
-
-    .main-tab:hover {
-        background-color: #c1c5ca;
-    }
-
-    .main-tab.active {
-        background-color: #1f2937;
-        color: white;
-    }
-
 .tab-content {
     margin-top: 0;
 }
@@ -160,6 +140,101 @@ figcaption {
     line-height: 1.5;
 }
 
+.currency-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1rem;
+}
+
+.currency-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+    .currency-field input,
+    .currency-field select {
+        min-width: 180px;
+        padding: 0.65rem;
+        border: 1px solid #bbb;
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+
+.currency-result {
+    margin-top: 1.5rem;
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
+.top-tab-navbar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.top-tab {
+    flex: 1;
+    border: none;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    background-color: #d1d5db;
+    color: #222;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+    .top-tab:hover {
+        background-color: #c1c5ca;
+    }
+
+    .top-tab.active {
+        background-color: #1f2937;
+        color: white;
+    }
+
+.week-tab-navbar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+}
+
+.week-tab {
+    border: none;
+    border-radius: 8px 8px 0 0;
+    padding: 0.8rem 1.2rem;
+    background-color: #e5e7eb;
+    color: #222;
+    font-size: 1rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+    .week-tab:hover {
+        background-color: #d1d5db;
+    }
+
+    .week-tab.active {
+        background-color: #4b5563;
+        color: white;
+    }
+
+.markdown-content pre {
+    overflow-x: auto;
+    padding: 1rem;
+    background-color: #f4f4f4;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    line-height: 1.4;
+}
+
+.markdown-content code {
+    font-family: Consolas, "Courier New", monospace;
+}
+
 
 
 @media (max-width: 700px) {
@@ -171,13 +246,21 @@ figcaption {
         margin-top: 1rem;
     }
 
-    .main-tab {
-        padding: 0.7rem 1rem;
-    }
-
     .status-label {
         display: block;
         min-width: 0;
         margin-bottom: 0.2rem;
+    }
+
+    .top-tab-navbar {
+        flex-direction: column;
+    }
+
+    .top-tab {
+        width: 100%;
+    }
+
+    .week-tab-navbar {
+        overflow-x: auto;
     }
 }
