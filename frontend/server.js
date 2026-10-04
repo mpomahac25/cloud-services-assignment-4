@@ -5,8 +5,59 @@ const { createProxyMiddleware } = require("http-proxy-middleware");
 
 const app = express();
 
+app.use((req, res, next) => {
+    const startTime = Date.now();
+
+    res.on("finish", () => {
+        console.log(JSON.stringify({
+            timestamp: new Date().toISOString(),
+            service: "frontend",
+            method: req.method,
+            path: req.originalUrl,
+            status: res.statusCode,
+            durationMs: Date.now() - startTime
+        }));
+    });
+
+    next();
+});
+
 const PORT = process.env.PORT || 8080;
 const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:3000";
+
+app.get("/health", (req, res) => {
+    res.json({
+        status: "ok",
+        service: "frontend"
+    });
+});
+
+app.get("/ready", async (req, res) => {
+    try {
+        const response = await fetch(
+            `${BACKEND_URL}/api/health`,
+            {
+                signal: AbortSignal.timeout(3000)
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Backend unavailable");
+        }
+
+        res.json({
+            status: "ready",
+            service: "frontend",
+            backend: "connected"
+        });
+    } catch (error) {
+        res.status(503).json({
+            status: "not ready",
+            service: "frontend",
+            backend: "unavailable"
+        });
+    }
+});
 
 // Forward /api requests to the backend
 app.use(

@@ -2,6 +2,23 @@ const express = require("express");
 
 const app = express();
 
+app.use((req, res, next) => {
+    const startTime = Date.now();
+
+    res.on("finish", () => {
+        console.log(JSON.stringify({
+            timestamp: new Date().toISOString(),
+            service: "currency-service",
+            method: req.method,
+            path: req.originalUrl,
+            status: res.statusCode,
+            durationMs: Date.now() - startTime
+        }));
+    });
+
+    next();
+});
+
 const PORT = Number(process.env.PORT || 3001);
 const FRANKFURTER_API_URL =
     process.env.FRANKFURTER_API_URL || "https://api.frankfurter.dev";
@@ -11,6 +28,22 @@ app.get("/health", (req, res) => {
         status: "ok",
         service: "currency-service"
     });
+});
+
+app.get("/ready", (req, res) => {
+    try {
+        new URL(FRANKFURTER_API_URL);
+
+        res.json({
+            status: "ready",
+            service: "currency-service"
+        });
+    } catch (error) {
+        res.status(503).json({
+            status: "not ready",
+            service: "currency-service"
+        });
+    }
 });
 
 app.get("/currencies", async (req, res) => {

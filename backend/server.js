@@ -6,6 +6,24 @@ const mysql = require("mysql2/promise");
 const app = express();
 app.use(express.json());
 
+// Logging of requests
+app.use((req, res, next) => {
+    const startTime = Date.now();
+
+    res.on("finish", () => {
+        console.log(JSON.stringify({
+            timestamp: new Date().toISOString(),
+            service: "backend",
+            method: req.method,
+            path: req.originalUrl,
+            status: res.statusCode,
+            durationMs: Date.now() - startTime
+        }));
+    });
+
+    next();
+});
+
 const PORT = process.env.PORT || 3000;
 
 // Frankfurter currency conversion API for week 5
@@ -21,12 +39,30 @@ const pool = mysql.createPool({
     connectionLimit: 10
 });
 
-// Simple backend health check
+// Simple backend health checks
 app.get("/api/health", (req, res) => {
     res.json({
         status: "ok",
         service: "backend"
     });
+});
+
+app.get("/api/ready", async (req, res) => {
+    try {
+        await pool.query("SELECT 1");
+
+        res.json({
+            status: "ready",
+            service: "backend",
+            database: "connected"
+        });
+    } catch (error) {
+        res.status(503).json({
+            status: "not ready",
+            service: "backend",
+            database: "unavailable"
+        });
+    }
 });
 
 // Read data from MySQL
