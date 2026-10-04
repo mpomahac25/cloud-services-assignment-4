@@ -8,6 +8,7 @@ RUN npm ci --omit=dev
 
 COPY server.js ./
 COPY public ./public
+COPY VERSION ./
 
 EXPOSE 8080
 
