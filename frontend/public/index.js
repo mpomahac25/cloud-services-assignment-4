@@ -165,10 +165,9 @@ topTabs.forEach(tab => {
             );
         });
 
-        if (selectedTab === "week4" || selectedTab === "week5") {
+        if (["week4", "week5", "week6"].includes(selectedTab)) {
             const activePanel = document.getElementById(`top-${selectedTab}`);
             const firstTab = activePanel.querySelector(".week-tab");
-
             activateWeekTab(activePanel, firstTab);
         }
     });

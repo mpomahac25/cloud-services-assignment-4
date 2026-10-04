@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Cloud Services Assignment 5</title>
+    <title>Cloud Services Assignment 6</title>
 
     <link rel="stylesheet" href="style.css">
 </head>
@@ -13,7 +13,7 @@
 <body>
 
     <header>
-        <h1>Cloud Services - Assignment 5</h1>
+        <h1>Cloud Services - Assignment 6</h1>
         <p>By: Marko Pomahac</p>
     </header>
 
@@ -39,6 +39,13 @@
                     data-top-tab="week5"
                     aria-selected="false">
                 Week 5
+            </button>
+
+            <button class="top-tab"
+                    type="button"
+                    data-top-tab="week6"
+                    aria-selected="false">
+                Week 6
             </button>
         </div>
 
@@ -937,6 +944,344 @@
                         </section>
 
                     </div>
+
+                </div>
+
+            </div>
+
+            <div id="top-week6" class="top-panel hidden">
+
+                <div class="week-tab-navbar">
+                    <button class="week-tab active"
+                            type="button"
+                            data-target="week6-questions"
+                            aria-selected="true">
+                        Questions
+                    </button>
+
+                    <button class="week-tab"
+                            type="button"
+                            data-target="week6-cicd"
+                            aria-selected="false">
+                        CI/CD
+                    </button>
+
+                    <button class="week-tab"
+                            type="button"
+                            data-target="week6-observability"
+                            aria-selected="false">
+                        Observability
+                    </button>
+                </div>
+
+                <div id="week6-questions" class="week-tab-panel">
+                    <section>
+                        <h2>Week 6 Questions</h2>
+                    </section>
+
+                    <section>
+                        <h2>1. Explain the difference between Continuous Integration, Continuous Delivery and Continuous Deployment</h2>
+
+                        <p>
+                            <strong>Continuous Integration (CI)</strong> means that code changes are regularly merged into the main repository and automatically checked, for example by building the application and running
+                            automated tests. The main goal is to detect integration problems early instead of finding them only after many changes have been combined.
+                        </p>
+
+                        <p>
+                            <strong>Continuous Delivery</strong> extends this idea by also preparing the application for deployment automatically. A successful pipeline might build a container image, run tests and push the
+                            image to a registry. The application is then ready to be deployed, but the actual production deployment still requires a manual decision or approval.
+                        </p>
+
+                        <p>
+                            <strong>Continuous Deployment</strong> further builds on this idea by removing the need for any manual production deployment, and instead automatically deploys to production the latest build which
+                            passed automated tests.
+                        </p>
+
+                        <p>
+                            In this project, the workflow files are closest to Continuous Deployment. The workflow files get triggered when the corresponding VERSION files are updated in the repo, then the
+                            Docker containers are built and pushed to Docker Hub, and finally the Rahti deployment(s) are updated to use the latest version of the container.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2>2. Describe the structure of a GitHub Actions workflow (triggers, jobs, steps). What would a minimal pipeline for the app you built in Week 4/5 need to do?</h2>
+
+                        <p>
+                            A GitHub Actions workflow is defined in a YAML file under <strong>.github/workflows/</strong>. A workflow first defines its trigger, which determines when it runs. For example, a workflow can run
+                            whenever something is pushed to the main branch. In this project the workflows trigger when the VERSION file on a specific repo path is updated, and additionally they have a
+                            workflow_dispatch option to be able to manually trigger a build if needed (mainly used for testing here).
+                        </p>
+
+                        <p>
+                            A workflow contains one or more jobs. Each job runs on a selected runner such as Ubuntu. Runners can be either ones provided by GitHub which consumes allocated GitHub Actions minutes,
+                            or self-hosted runners which are user-owned machines configured for running GitHub Actions workflows at no GitHub Actions minutes cost. A job then contains multiple steps, which are
+                            executed in order. Steps can either run shell commands or use existing GitHub Actions, such as an action for logging in to Docker Hub.
+                        </p>
+
+                        <p>
+                            For this application, the minimum deployment pipeline needs to: <br />
+                            <ol>
+                                <li>Check out the source code</li>
+                                <li>Determine the version for the new container build(s) -> VERSION files in this case</li>
+                                <li>Log in to Docker Hub</li>
+                                <li>Build the container image</li>
+                                <li>Push the built image to Docker Hub</li>
+                                <li>Install or make the OpenShift CLI available</li>
+                                <li>Log in to Rahti using a stored token</li>
+                                <li>Update the corresponding deployment using <strong>oc set image</strong></li>
+                                <li>Wait for the new deployment rollout to finish successfully</li>
+                            </ol>
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2>3. Explain the difference between a liveness probe and a readiness probe in Kubernetes/Rahti. What happens when each one fails?</h2>
+
+                        <p>
+                            A liveness probe checks whether the application inside a container is still functioning. If the liveness probe repeatedly fails, Kubernetes considers the container unhealthy and restarts it.
+                        </p>
+
+                        <p>
+                            A readiness probe checks whether the application is currently able to receive normal traffic. If the readiness probe fails, the container can continue running, but the Pod is marked as not
+                            ready and it is not used as a ready endpoint for its Service.
+                        </p>
+
+                        <p>
+                            For example, the backend in this project uses <strong>/api/health</strong> for its liveness probe and <strong>/api/ready</strong> for its readiness probe. The readiness endpoint also checks whether the backend can communicate
+                            with the MySQL database.
+                        </p>
+
+                        <p>
+                            I also tested readiness failure by deliberately configuring an invalid readiness path for the currency service. The new Pod remained running but stayed at 0/1 ready. Because the Deployment
+                            used a rolling update strategy, the previous healthy Pod remained available while the new Pod was not added as a ready Service endpoint.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2>4. Why should secrets (registry tokens, cluster login tokens) never be hard-coded into a CI/CD pipeline file? How does GitHub Actions handle this instead?</h2>
+
+                        <p>
+                            Secrets such as Docker registry tokens and cluster login tokens should never be written directly into a workflow YAML file because the workflow is normally stored in the Git repository. 
+                            Anyone with access to the repository could then see the credentials, and they could also remain visible in the Git history even if they were removed later.
+                        </p>
+
+                        <p>
+                            If a repository was made public accidentally, hard-coded credentials could allow someone to push malicious container images or access the deployment environment.
+                        </p>
+
+                        <p>
+                            GitHub Actions provides repository secrets for this purpose. The secret value is stored separately from the repository and can be referenced from the workflow without putting the actual 
+                            credential into the YAML file. For example, the Docker Hub token is being accessed by using ${{ secrets.DOCKERHUB_TOKEN }}.
+                        </p>
+
+                        <p>
+                            Non-sensitive configuration, such as the Docker Hub username, Rahti server address and Rahti namespace, can instead be stored as normal GitHub repository variables. In this project, 
+                            the actual authentication tokens are therefore kept outside the source code while the workflow only contains references to them.
+                        </p>
+                    </section>
+                </div>
+
+                <div id="week6-cicd" class="week-tab-panel hidden">
+
+                    <section>
+                        <h2>CI/CD Pipeline</h2>
+
+                        <p>
+                            Separate GitHub Actions workflows were created for the frontend, backend and currency service (figure 1). Each component contains its own VERSION file, and
+                            the corresponding workflow is triggered only when that VERSION file is changed on the main branch.
+                        </p>
+
+                        <figure>
+                            <img src="https://a3s.fi/swift/v1/assignment-6-media/repo_workflows.png"
+                                 alt="Repo workflows">
+
+                            <figcaption>
+                                Figure 1: The 3 workflow files being used in this project
+                            </figcaption>
+                        </figure>
+
+                        <p>
+                            When triggered, the workflow reads the version, verifies that the same Docker image version does not already exist, builds the container image,
+                            pushes it to Docker Hub, logs in to Rahti and updates the corresponding Deployment using the OpenShift CLI. The workflow then waits for the
+                            rollout to complete successfully. Below is an image (figure 2) showing a successful workflow run with all of the steps visible.
+                        </p>
+
+                        <figure>
+                            <img src="https://a3s.fi/swift/v1/assignment-6-media/repo_workflow_success.png"
+                                 alt="Successful workflow run">
+
+                            <figcaption>
+                                Figure 2: Successful workflow run for frontend container deployment
+                            </figcaption>
+                        </figure>
+
+                        <p>
+                            This means that changing application code alone does not automatically release it. Updating the VERSION file acts as an explicit release action (figure 3),
+                            and only the component whose version was changed is rebuilt and deployed.
+                        </p>
+
+                        <figure>
+                            <img src="https://a3s.fi/swift/v1/assignment-6-media/repo_workflow_trigger.png"
+                                 alt="Workflow trigger">
+
+                            <figcaption>
+                                Figure 3: Trigger configuration for frontend container deployment workflow
+                            </figcaption>
+                        </figure>
+                    </section>
+
+                    <section>
+                        <h2>Automatic Deployment</h2>
+
+                        <p>
+                            After the container image was pushed to Docker Hub, GitHub Actions used <strong>oc set image</strong> to update the corresponding Rahti Deployment (figure 4). This caused
+                            Rahti to create a new Pod using the newly released container version.
+                        </p>
+
+                        <figure>
+                            <img src="https://a3s.fi/swift/v1/assignment-6-media/repo_workflow_deploy.png"
+                                 alt="Update deployment">
+
+                            <figcaption>
+                                Figure 4: Workflow step handling deployment update on Rahti
+                            </figcaption>
+                        </figure>
+                    </section>
+
+                    <section>
+                        <h2>Running Versions</h2>
+
+                        <p>
+                            Each application component reads its VERSION file when it starts and provides the value through a version endpoint (figure 5). The frontend displays
+                            the versions currently running in Rahti (figure 6), making it possible to verify that the expected container releases were deployed.
+                        </p>
+
+                        <figure>
+                            <img src="https://a3s.fi/swift/v1/assignment-6-media/version_endpoing.png"
+                                 alt="Version endpoint">
+
+                            <figcaption>
+                                Figure 5: Source code for version endpoint to give version info to display on frontend
+                            </figcaption>
+                        </figure>
+
+                        <figure>
+                            <img src="https://a3s.fi/swift/v1/assignment-6-media/version_info.png"
+                                 alt="Version info">
+
+                            <figcaption>
+                                Figure 6: Frontend displaying version info received from endpoints
+                            </figcaption>
+                        </figure>
+                    </section>
+
+                </div>
+
+                <div id="week6-observability" class="week-tab-panel hidden">
+
+                    <section>
+                        <h2>Liveness and Readiness Probes</h2>
+
+                        <p>
+                            Liveness and readiness probes were configured for the frontend, backend and currency service (figure 1). The liveness probes check whether the application
+                            processes are running, while the readiness probes determine whether the Pods are currently able to receive normal traffic.
+                        </p>
+
+                        <figure>
+                            <img src="https://a3s.fi/swift/v1/assignment-6-media/readiness_liveness_probe.png"
+                                 alt="Readiness and liveness probes">
+
+                            <figcaption>
+                                Figure 1: Currency service YAML showing readiness and liveness probes
+                            </figcaption>
+                        </figure>
+                    </section>
+
+                    <section>
+                        <h2>Readiness Failure Test</h2>
+
+                        <p>
+                            The currency service readiness probe was deliberately changed to point to an invalid endpoint (figure 2). The replacement Pod started and remained
+                            running, but its readiness state stayed at 0/1 because the readiness probe failed (figure 3).
+                        </p>
+
+                        <figure>
+                            <img src="https://a3s.fi/swift/v1/assignment-6-media/ready_fail_exp_yaml.png"
+                                 alt="Purposely broken endpoint">
+
+                            <figcaption>
+                                Figure 2: Invalid endpoint /ready-broken in currency-service YAML
+                            </figcaption>
+                        </figure>
+
+                        <p>
+                            Since the Deployment uses a rolling update strategy, the previous healthy Pod remained running while the replacement Pod was not ready (figure 3).
+                            This allowed the Service to continue using the old healthy Pod instead of routing traffic to the new unhealthy one.
+                        </p>
+
+                        <figure>
+                            <img src="https://a3s.fi/swift/v1/assignment-6-media/ready_fail_exp_broken.png"
+                                 alt="Not ready pod">
+
+                            <figcaption>
+                                Figure 3: New currency-service pod running but failing to enter Ready state
+                            </figcaption>
+                        </figure>
+                    </section>
+
+                    <section>
+                        <h2>Structured Logging</h2>
+
+                        <p>
+                            Structured request logging was added to the frontend, backend and currency service (figure 4). Each request produces a JSON log entry containing
+                            information such as the timestamp, service name, HTTP method, request path, response status and request duration (figure 5). The log outputs are
+                            taken from local testing via docker-compose for easier demonstration of the multiple implementations.
+                        </p>
+
+                        <figure>
+                            <img src="https://a3s.fi/swift/v1/assignment-6-media/logging_implementation.png"
+                                 alt="Logging implementation">
+
+                            <figcaption>
+                                Figure 4: Logging implementation for currency-service
+                            </figcaption>
+                        </figure>
+
+                        <figure>
+                            <img src="https://a3s.fi/swift/v1/assignment-6-media/logging_local.png"
+                                 alt="Logging output">
+
+                            <figcaption>
+                                Figure 5: Log outputs from local testing
+                            </figcaption>
+                        </figure>
+                    </section>
+
+                    <section>
+                        <h2>Example Alert</h2>
+
+                        <p>
+                            One useful production alert could monitor the percentage of HTTP 5xx responses. For example, an alert could be triggered if more than 5% of
+                            requests fail continuously for five minutes. Using a threshold and a time period instead of alerting on every individual error would reduce
+                            unnecessary alerts and help avoid alert fatigue.
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2>Problems Encountered</h2>
+
+                        <p>
+                            One problem occurred when the GitHub Actions workflow attempted to log in to Rahti. The Rahti server address had been stored as a repository
+                            variable, but the workflow initially referenced it as a secret. This resulted in the oc command receiving no server URL. The workflow was
+                            corrected to use vars.RAHTI_SERVER.
+                        </p>
+
+                        <p>
+                            Another problem occurred after VERSION files were added to the application. The services attempted to read the VERSION file when they
+                            started, but the Dockerfiles did not copy the file into the container images. This caused the new Pods to enter CrashLoopBackOff. COPY VERSION
+                            ./ was added to each Dockerfile and new container versions were released.
+                        </p>
+                    </section>
 
                 </div>
 
