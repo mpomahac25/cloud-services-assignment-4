@@ -49,11 +49,11 @@ jobs:
       - name: Login to Rahti
         run: >
           oc login
-          ${{ secrets.RAHTI_SERVER }}
+          ${{ vars.RAHTI_SERVER }}
           --token=${{ secrets.RAHTI_TOKEN }}
 
       - name: Select Rahti project
-        run: oc project ${{ secrets.RAHTI_NAMESPACE }}
+        run: oc project ${{ vars.RAHTI_NAMESPACE }}
 
       - name: Deploy currency service
         run: >
