@@ -24,6 +24,13 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Check version does not already exist
+        run: |
+          if docker manifest inspect ${{ vars.DOCKERHUB_USERNAME }}/cloud-assignment-w4-backend:${{ env.VERSION }} > /dev/null 2>&1; then
+            echo "Version $VERSION already exists in Docker Hub."
+            exit 1
+          fi
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
