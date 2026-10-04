@@ -2,6 +2,12 @@ require("dotenv").config();
 
 const express = require("express");
 const { createProxyMiddleware } = require("http-proxy-middleware");
+const fs = require("fs");
+const path = require("path");
+
+const VERSION = fs
+    .readFileSync(path.join(__dirname, "VERSION"), "utf8")
+    .trim();
 
 const app = express();
 
@@ -24,6 +30,13 @@ app.use((req, res, next) => {
 
 const PORT = process.env.PORT || 8080;
 const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:3000";
+
+app.get("/version", (req, res) => {
+    res.json({
+        service: "frontend",
+        version: VERSION
+    });
+});
 
 app.get("/health", (req, res) => {
     res.json({

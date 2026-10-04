@@ -2,6 +2,12 @@ require("dotenv").config();
 
 const express = require("express");
 const mysql = require("mysql2/promise");
+const fs = require("fs");
+const path = require("path");
+
+const VERSION = fs
+    .readFileSync(path.join(__dirname, "VERSION"), "utf8")
+    .trim();
 
 const app = express();
 app.use(express.json());
@@ -37,6 +43,14 @@ const pool = mysql.createPool({
     database: process.env.DB_NAME || "cloudapp",
     waitForConnections: true,
     connectionLimit: 10
+});
+
+// Simple version info fetch
+app.get("/api/version", (req, res) => {
+    res.json({
+        service: "backend",
+        version: VERSION
+    });
 });
 
 // Simple backend health checks
@@ -163,6 +177,29 @@ app.get("/api/currency/convert", async (req, res) => {
 
         res.status(502).json({
             error: "Currency service is unavailable"
+        });
+    }
+});
+
+// Fetch currency-service container version
+app.get("/api/currency/version", async (req, res) => {
+    try {
+        const response = await fetch(
+            `${CURRENCY_SERVICE_URL}/version`,
+            {
+                signal: AbortSignal.timeout(5000)
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Currency service returned an error");
+        }
+
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        res.status(502).json({
+            error: "Currency service unavailable"
         });
     }
 });

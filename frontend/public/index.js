@@ -283,3 +283,41 @@ if (week5ArchitectureElement) {
     week5ArchitectureElement.innerHTML =
         marked.parse(week5Architecture);
 }
+
+// Version data update
+async function loadVersions() {
+    try {
+        const frontendResponse = await fetch("/version");
+        const frontend = await frontendResponse.json();
+
+        document.getElementById("frontend-version").textContent =
+            frontend.version;
+    } catch {
+        document.getElementById("frontend-version").textContent =
+            "Unavailable";
+    }
+
+    try {
+        const backendResponse = await fetch("/api/version");
+        const backend = await backendResponse.json();
+
+        document.getElementById("backend-version").textContent =
+            backend.version;
+    } catch {
+        document.getElementById("backend-version").textContent =
+            "Unavailable";
+    }
+
+    try {
+        const currencyResponse = await fetch("/api/currency/version");
+        const currency = await currencyResponse.json();
+
+        document.getElementById("currency-version").textContent =
+            currency.version;
+    } catch {
+        document.getElementById("currency-version").textContent =
+            "Unavailable";
+    }
+}
+
+loadVersions();

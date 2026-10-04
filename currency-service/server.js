@@ -1,4 +1,10 @@
 const express = require("express");
+const fs = require("fs");
+const path = require("path");
+
+const VERSION = fs
+    .readFileSync(path.join(__dirname, "VERSION"), "utf8")
+    .trim();
 
 const app = express();
 
@@ -22,6 +28,13 @@ app.use((req, res, next) => {
 const PORT = Number(process.env.PORT || 3001);
 const FRANKFURTER_API_URL =
     process.env.FRANKFURTER_API_URL || "https://api.frankfurter.dev";
+
+app.get("/version", (req, res) => {
+    res.json({
+        service: "currency-service",
+        version: VERSION
+    });
+});
 
 app.get("/health", (req, res) => {
     res.json({
